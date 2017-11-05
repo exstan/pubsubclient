@@ -412,7 +412,6 @@ boolean PubSubClient::publish_P(const char* topic, const uint8_t* payload, unsig
     tlen = strlen(topic);
 
     header = MQTTPUBLISH;
-    header |= MQTTQOS1;
     if (retained) {
         header |= 1;
     }
