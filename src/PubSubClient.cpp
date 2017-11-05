@@ -106,14 +106,18 @@ boolean PubSubClient::connect(const char *id) {
 }
 
 boolean PubSubClient::connect(const char *id, const char *user, const char *pass) {
-    return connect(id,user,pass,0,0,0,0);
+    return connect(id,user,pass,0,0,0,0,true);
+}
+
+boolean PubSubClient::connect(const char *id, const char *user, const char *pass, boolean cleanSession) {
+    return connect(id,user,pass,0,0,0,0,cleanSession);
 }
 
 boolean PubSubClient::connect(const char *id, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage) {
     return connect(id,NULL,NULL,willTopic,willQos,willRetain,willMessage);
 }
 
-boolean PubSubClient::connect(const char *id, const char *user, const char *pass, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage) {
+boolean PubSubClient::connect(const char *id, const char *user, const char *pass, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage, boolean cleanSession=true) {
     if (!connected()) {
         int result = 0;
 
@@ -141,9 +145,9 @@ boolean PubSubClient::connect(const char *id, const char *user, const char *pass
 
             uint8_t v;
             if (willTopic) {
-                v = 0x06|(willQos<<3)|(willRetain<<5);
+                v = (cleanSession ? 0x06 : 0x04)|(willQos<<3)|(willRetain<<5);
             } else {
-                v = 0x02;
+                v = (cleanSession ? 0x02 : 0);
             }
 
             if(user != NULL) {
@@ -347,14 +351,18 @@ boolean PubSubClient::publish(const char* topic, const char* payload) {
 }
 
 boolean PubSubClient::publish(const char* topic, const char* payload, boolean retained) {
-    return publish(topic,(const uint8_t*)payload,strlen(payload),retained);
+    return publish(topic,(const uint8_t*)payload,strlen(payload),0,retained);
+}
+
+boolean PubSubClient::publish(const char* topic, const char* payload, uint8_t qos, boolean retained) {
+    return publish(topic,(const uint8_t*)payload,strlen(payload),qos,retained);
 }
 
 boolean PubSubClient::publish(const char* topic, const uint8_t* payload, unsigned int plength) {
-    return publish(topic, payload, plength, false);
+    return publish(topic, payload, plength, 0, false);
 }
 
-boolean PubSubClient::publish(const char* topic, const uint8_t* payload, unsigned int plength, boolean retained) {
+boolean PubSubClient::publish(const char* topic, const uint8_t* payload, unsigned int plength, uint8_t qos, boolean retained) {
     if (connected()) {
         if (MQTT_MAX_PACKET_SIZE < 5 + 2+strlen(topic) + plength) {
             // Too long
@@ -363,11 +371,22 @@ boolean PubSubClient::publish(const char* topic, const uint8_t* payload, unsigne
         // Leave room in the buffer for header and variable length field
         uint16_t length = 5;
         length = writeString(topic,buffer,length);
+	if (qos > 0) {
+	    nextMsgId++;
+ 	    if (nextMsgId == 0) {
+      	        nextMsgId = 1;
+      	    }
+            buffer[length++] = (nextMsgId >> 8);
+            buffer[length++] = (nextMsgId & 0xFF);
+        }
         uint16_t i;
         for (i=0;i<plength;i++) {
             buffer[length++] = payload[i];
         }
-        uint8_t header = MQTTPUBLISH;
+	uint8_t header = MQTTPUBLISH;
+	if (qos > 0) {
+	    header |= (qos == 1 ? MQTTQOS1 : MQTTQOS2);
+	}
         if (retained) {
             header |= 1;
         }
@@ -393,6 +412,7 @@ boolean PubSubClient::publish_P(const char* topic, const uint8_t* payload, unsig
     tlen = strlen(topic);
 
     header = MQTTPUBLISH;
+    header |= MQTTQOS1;
     if (retained) {
         header |= 1;
     }
