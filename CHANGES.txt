@@ -1,3 +1,5 @@
+3 Jan 2018 (destroyedlolo) : Add clean session to connect()
+
 2.4
    * Add MQTT_SOCKET_TIMEOUT to prevent it blocking indefinitely
      whilst waiting for inbound data
