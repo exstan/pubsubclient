@@ -101,23 +101,19 @@ PubSubClient::PubSubClient(const char* domain, uint16_t port, MQTT_CALLBACK_SIGN
     setStream(stream);
 }
 
-boolean PubSubClient::connect(const char *id) {
-    return connect(id,NULL,NULL,0,0,0,0);
-}
-
-boolean PubSubClient::connect(const char *id, const char *user, const char *pass) {
-    return connect(id,user,pass,0,0,0,0,true);
+boolean PubSubClient::connect(const char *id, boolean cleanSession) {
+    return connect(id,NULL,NULL,0,0,0,0,cleanSession);
 }
 
 boolean PubSubClient::connect(const char *id, const char *user, const char *pass, boolean cleanSession) {
     return connect(id,user,pass,0,0,0,0,cleanSession);
 }
 
-boolean PubSubClient::connect(const char *id, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage) {
-    return connect(id,NULL,NULL,willTopic,willQos,willRetain,willMessage);
+boolean PubSubClient::connect(const char *id, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage, boolean cleanSession) {
+    return connect(id,NULL,NULL,willTopic,willQos,willRetain,willMessage,cleanSession);
 }
 
-boolean PubSubClient::connect(const char *id, const char *user, const char *pass, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage, boolean cleanSession=true) {
+boolean PubSubClient::connect(const char *id, const char *user, const char *pass, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage, boolean cleanSession) {
     if (!connected()) {
         int result = 0;
 
@@ -346,20 +342,12 @@ boolean PubSubClient::loop() {
     return false;
 }
 
-boolean PubSubClient::publish(const char* topic, const char* payload) {
-    return publish(topic,(const uint8_t*)payload,strlen(payload),false);
-}
-
 boolean PubSubClient::publish(const char* topic, const char* payload, boolean retained) {
     return publish(topic,(const uint8_t*)payload,strlen(payload),0,retained);
 }
 
 boolean PubSubClient::publish(const char* topic, const char* payload, uint8_t qos, boolean retained) {
     return publish(topic,(const uint8_t*)payload,strlen(payload),qos,retained);
-}
-
-boolean PubSubClient::publish(const char* topic, const uint8_t* payload, unsigned int plength) {
-    return publish(topic, payload, plength, 0, false);
 }
 
 boolean PubSubClient::publish(const char* topic, const uint8_t* payload, unsigned int plength, uint8_t qos, boolean retained) {
