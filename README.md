@@ -3,15 +3,6 @@
 This library provides a client for doing simple publish/subscribe messaging with
 a server that supports MQTT.
 
-## Examples
-
-The library comes with a number of example sketches. See File > Examples > PubSubClient
-within the Arduino application.
-
-Full API documentation is available here: http://pubsubclient.knolleary.net
-
-## Limitations
-
  - It can publish QoS 0/1/2 messages and subscribe at QoS 0 or QoS 1.
  - Can join session on connect without cleaning it (cleanSession=false). Which
    means that network issues (causing disconnects) are not a problem to receive 
@@ -23,6 +14,10 @@ Full API documentation is available here: http://pubsubclient.knolleary.net
  - The client uses MQTT 3.1.1 by default. It can be changed to use MQTT 3.1 by
    changing value of `MQTT_VERSION` in `PubSubClient.h`.
 
+## Examples
+
+The library comes with a number of example sketches. See File > Examples > PubSubClient
+within the Arduino application.
 
 ## Compatible Hardware
 

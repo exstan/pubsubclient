@@ -1,4 +1,8 @@
-3 Jan 2018 (destroyedlolo) : Add clean session to connect()
+2.6.1
+   * Add support for publish with QoS 0/1/2 and subscribe at QoS 0 or QoS 1
+   * Add support for clean session control (cleanSession=false)
+   * Set maximum message size, including header, to 512 bytes
+   * Add clean session to all the connect() methods and set retain flag default to false (Thanks to destroyedlolo)
 
 2.4
    * Add MQTT_SOCKET_TIMEOUT to prevent it blocking indefinitely
